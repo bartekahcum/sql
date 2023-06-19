@@ -1,0 +1,65 @@
+-- Tworzenie tabeli Pracownicy
+CREATE TABLE Pracownicy (
+    id_pracownika INTEGER PRIMARY KEY,
+    imie VARCHAR(50) NOT NULL,
+    nazwisko VARCHAR(50) NOT NULL,
+    pesel CHAR(11) NOT NULL UNIQUE,
+    specjalizacja VARCHAR(50)
+);
+
+-- Tworzenie tabeli Projekty
+CREATE TABLE Projekty (
+    id_projektu INTEGER PRIMARY KEY,
+    temat VARCHAR(100) NOT NULL,
+    stan_realizacji INTEGER DEFAULT 0 CHECK (stan_realizacji >= 0 AND stan_realizacji <= 100),
+    kierownik_id INTEGER,
+    FOREIGN KEY (kierownik_id) REFERENCES Pracownicy (id_pracownika)
+);
+
+-- Tworzenie tabeli PrzypisanieProjektu
+CREATE TABLE PrzypisanieProjektu (
+    id_przypisania INTEGER PRIMARY KEY,
+    projekt_id INTEGER,
+    pracownik_id INTEGER,
+    realizacja_od DATE NOT NULL,
+    realizacja_do DATE,
+    FOREIGN KEY (projekt_id) REFERENCES Projekty (id_projektu),
+    FOREIGN KEY (pracownik_id) REFERENCES Pracownicy (id_pracownika)
+);
+
+-- Tworzenie tabeli Specjalizacje
+CREATE TABLE Specjalizacje (
+    id_specjalizacji INTEGER PRIMARY KEY,
+    nazwa_specjalizacji VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Wprowadzanie przykładowych danych
+
+-- Tabela Pracownicy
+INSERT INTO Pracownicy (id_pracownika, imie, nazwisko, pesel, specjalizacja) VALUES
+(1, 'Jan', 'Kowalski', '12345678901', 'marketing'),
+(2, 'Anna', 'Nowak', '98765432109', 'finanse');
+
+-- Tabela Projekty
+INSERT INTO Projekty (id_projektu, temat, stan_realizacji, kierownik_id) VALUES
+(1, 'Projekt A', 50, 1),
+(2, 'Projekt B', 25, 2);
+
+-- Tabela PrzypisanieProjektu
+INSERT INTO PrzypisanieProjektu (id_przypisania, projekt_id, pracownik_id, realizacja_od, realizacja_do) VALUES
+(1, 1, 1, '2023-01-01', NULL),
+(2, 2, 2, '2023-02-01', '2023-03-01');
+
+-- Tabela Specjalizacje
+INSERT INTO Specjalizacje (id_specjalizacji, nazwa_specjalizacji) VALUES
+(1, 'marketing'),
+(2, 'finanse');
+
+-- Zweryfikuj poprawność założeń
+-- Sprawdzenie czy tabela Pracownicy zawiera unikalne numery PESEL
+SELECT pesel, COUNT(*) AS ilosc_powtorzen FROM Pracownicy GROUP BY pesel HAVING COUNT(*) > 1;
+
+-- Sprawdzenie czy tabela Projekty zawiera projekty z przypisanym kierownikiem
+SELECT * FROM Projekty WHERE kierownik_id IS NULL;
+
+-- Sprawdzenie czy tabela PrzypisanieProjektu
